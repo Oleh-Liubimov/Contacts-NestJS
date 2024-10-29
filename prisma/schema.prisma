@@ -39,8 +39,7 @@ model Session {
   accessTokenValidUntil  DateTime
   refreshTokenValidUntil DateTime
 
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [id], references: [id], onDelete: Cascade)
 
   @@map("sessions")
 }
@@ -56,8 +55,7 @@ model Contacts {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [id], references: [id], onDelete: Cascade)
 
   @@map("contacts")
 }
