@@ -1,4 +1,4 @@
-import { Session, User } from '@prisma/client';
+import { Contacts, User } from '@prisma/client';
 
 export interface SignUpResponse {
   status: number;
@@ -12,4 +12,8 @@ export interface SignInResponse {
   data: {
     accessToken: string;
   };
+}
+
+export interface GetAllContactsResponse {
+  data: Contacts[];
 }
