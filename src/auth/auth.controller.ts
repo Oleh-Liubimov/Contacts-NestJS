@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  HttpCode,
   HttpException,
   HttpStatus,
   Post,
@@ -23,6 +22,7 @@ export class AuthController {
   async signup(@Body() dto: SignUpDto): Promise<SignUpResponse> {
     try {
       const user = await this.authService.signupUser(dto);
+      delete  user.password;
 
       return {
         status: HttpStatus.CREATED,
@@ -40,13 +40,13 @@ export class AuthController {
     }
   }
 
-  @Post('signin')
-  async signin(
-    @Body() dto: SignInDto,
+  @Post('login')
+  async signIn(
+    @Body() userCredentials: SignInDto,
     @Res() res: Response,
-  ): Promise<SignInResponse> {
+  ): Promise<void> {
     try {
-      const session = await this.authService.signinUser(dto);
+      const session = await this.authService.signInUser(userCredentials);
 
       res.cookie('refreshToken', session.refreshToken, {
         httpOnly: true,
@@ -57,13 +57,13 @@ export class AuthController {
         expires: new Date(Date.now() + constants.ONE_DAY),
       });
 
-      return {
+      res.json({
         status: HttpStatus.OK,
         msg: 'Successfully signed in',
         data: {
           accessToken: session.accessToken,
         },
-      };
+      })
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -75,10 +75,11 @@ export class AuthController {
     }
   }
 
-  @Delete('logout')
+  @Post('logout')
   async logout(@Req() req: Request, @Res() res: Response) {
+
     if (req.cookies.sessionId) {
-      await this.authService.logoutUser(req.cookies.sessionId);
+      await this.authService.logoutUser(parseInt(req.cookies.sessionId));
     }
 
     res.clearCookie('sessionId');

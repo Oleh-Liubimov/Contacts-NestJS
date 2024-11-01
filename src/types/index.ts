@@ -1,4 +1,4 @@
-import { Contacts, User } from '@prisma/client';
+import { Contact, User } from '@prisma/client';
 
 export interface SignUpResponse {
   status: number;
@@ -15,5 +15,12 @@ export interface SignInResponse {
 }
 
 export interface GetAllContactsResponse {
-  data: Contacts[];
+  status:number;
+  msg: string;
+  data: Contact[];
+}
+export interface GetOneContactResponse {
+  status:number;
+  msg: string;
+  data: Contact | null;
 }

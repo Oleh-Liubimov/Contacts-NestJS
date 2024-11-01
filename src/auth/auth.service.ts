@@ -27,7 +27,7 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(payload.password, 10);
 
-    return await this.prisma.user.create({
+    return this.prisma.user.create({
       data: {
         ...payload,
         password: hashedPassword,
@@ -35,7 +35,7 @@ export class AuthService {
     });
   }
 
-  async signinUser(payload: SignInDto): Promise<Session> {
+  async signInUser(payload: SignInDto): Promise<Session> {
     const user = await this.prisma.user.findUnique({
       where: {
         email: payload.email,
@@ -50,7 +50,7 @@ export class AuthService {
 
     if (!isEqual) {
       throw new HttpException(
-        'Credential is incirrect',
+        'Credential is incorrect',
         HttpStatus.UNAUTHORIZED,
       );
     }
@@ -64,7 +64,7 @@ export class AuthService {
     const accessToken = randomBytes(30).toString('base64');
     const refreshToken = randomBytes(30).toString('base64');
 
-    return await this.prisma.session.create({
+    return this.prisma.session.create({
       data: {
         userId: user.id,
         accessToken,
@@ -76,10 +76,33 @@ export class AuthService {
   }
 
   async logoutUser(sessionId: number): Promise<void> {
+
+    const session = await  this.prisma.session.findUnique({
+      where:{
+        id: sessionId,
+      }
+    })
+
+    if(!session){
+      throw  new HttpException("Session not found", HttpStatus.NOT_FOUND);
+    }
+
     await this.prisma.session.delete({
       where: {
         id: sessionId,
       },
     });
+  }
+
+  async  getSession(sessionId: number): Promise<Session> {
+    const session = await this.prisma.session.findUnique({
+      where:{
+        id: sessionId,
+      }
+    })
+    if(!session){
+      throw new HttpException("Session not found", HttpStatus.NOT_FOUND);
+    }
+    return  session
   }
 }

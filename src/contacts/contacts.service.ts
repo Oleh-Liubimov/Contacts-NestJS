@@ -1,7 +1,8 @@
 import { PrismaService } from 'prisma.service';
 import { CreateContactDto, getContactsDto } from './dto';
 import { calcPaginationData } from '../utils';
-import {Contact} from "@prisma/client";
+import { Contact } from '@prisma/client';
+import {HttpException, HttpStatus} from "@nestjs/common";
 
 
 export class ContactsService {
@@ -13,7 +14,7 @@ export class ContactsService {
     const limit:number = perPage;
     const skip:number = (page - 1) * perPage;
 
-    const contactsQuery: any = this.prisma.contacts.findMany({
+    const contactsQuery: any = this.prisma.contact.findMany({
       where: {
         userId,
         ...(filter.contactType && {
@@ -24,10 +25,10 @@ export class ContactsService {
     });
 
     const [contactsCount, contacts] = await Promise.all([
-      this.prisma.contacts.count({
+      this.prisma.contact.count({
         where: contactsQuery,
       }),
-      this.prisma.contacts.findMany({
+      this.prisma.contact.findMany({
         where: contactsQuery,
         take: limit,
         skip,
@@ -45,17 +46,21 @@ export class ContactsService {
     };
   }
 
-  async getContactById(contactId: number, userId: number):Promise<Contact> {
-    return  this.prisma.contacts.findUnique({
+  async getContactById(contactId: number, userId: number):Promise<Contact | HttpException> {
+    const contact = await this.prisma.contact.findUnique({
       where: {
         userId: userId,
         id: contactId,
       },
     });
+    if(!contact) {
+      throw new HttpException("Contact not found", HttpStatus.NOT_FOUND);
+    }
+    return contact
   }
 
   async createContact(payload: CreateContactDto, userId: number):Promise<Contact> {
-    return  this.prisma.contacts.create({
+    return  this.prisma.contact.create({
       data: {
         ...payload,
         user:{
@@ -69,7 +74,7 @@ export class ContactsService {
 
 
   async  deleteContact(contactId: number, userId:number):Promise<Contact> {
-    return this.prisma.contacts.delete({
+    return this.prisma.contact.delete({
       where:{
         id:contactId,
         userId
