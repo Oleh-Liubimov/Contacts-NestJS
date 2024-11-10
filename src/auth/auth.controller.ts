@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   HttpException,
   HttpStatus,
   Post,
@@ -12,7 +11,7 @@ import { AuthService } from './auth.service';
 import { SignInDto, SignUpDto } from './dto';
 import { Request, Response } from 'express';
 import constants from 'src/constants';
-import { SignInResponse, SignUpResponse } from 'src/types';
+import { SignUpResponse } from 'src/types';
 
 @Controller('auth')
 export class AuthController {
@@ -22,7 +21,7 @@ export class AuthController {
   async signup(@Body() dto: SignUpDto): Promise<SignUpResponse> {
     try {
       const user = await this.authService.signupUser(dto);
-      delete  user.password;
+      delete user.password;
 
       return {
         status: HttpStatus.CREATED,
@@ -63,7 +62,7 @@ export class AuthController {
         data: {
           accessToken: session.accessToken,
         },
-      })
+      });
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -77,7 +76,6 @@ export class AuthController {
 
   @Post('logout')
   async logout(@Req() req: Request, @Res() res: Response) {
-
     if (req.cookies.sessionId) {
       await this.authService.logoutUser(parseInt(req.cookies.sessionId));
     }

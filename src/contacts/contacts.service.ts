@@ -41,7 +41,7 @@ export class ContactsService {
     const paginationData = calcPaginationData(contactsCount, page, perPage);
 
     return {
-      data: contacts,
+      contacts,
       paginationData,
     };
   }

@@ -1,3 +1,4 @@
+import { HttpException } from '@nestjs/common';
 import { Contact, User } from '@prisma/client';
 
 export interface SignUpResponse {
@@ -14,13 +15,33 @@ export interface SignInResponse {
   };
 }
 
+export interface PaginationData {
+  totalPages:number,
+  count:number,
+  page:number,
+  perPage:number,
+  hasNextPage:boolean,
+  hasPrevPage:boolean,
+}
+
+interface ResponsePagination{
+  data:Contact[],
+  paginationData:PaginationData,
+}
+
 export interface GetAllContactsResponse {
-  status:number;
+  status: number;
   msg: string;
-  data: Contact[];
+  data: ResponsePagination
 }
 export interface GetOneContactResponse {
-  status:number;
+  status: number;
   msg: string;
-  data: Contact | null;
+  data: Contact | HttpException;
+}
+
+export interface CreateContactResponse {
+  status: number;
+  msg: string;
+  data: Contact;
 }
